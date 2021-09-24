@@ -6,7 +6,7 @@
 % former:plot_HARDI_along_tract2, and plot_tract_along_with_glyphs
 % t_vox = cellfun(@(x) x/1.25,Tracts,'UniformOutput',false);
 
-file = 'D:\Matlab_files\100307\100307_tracts_t1\Tracts_th01_and_test2.mat'; %Default,depend on seed point selection
+file = 'D:\Matlab_files\100307\100307_tracts_t1\Tracts_ROI_0_fulltr8_hafdbran2_and.mat'; %Default,depend on seed point selection
 %file = 'Tracts_ROI5_afd1tr7.mat';
 file_info = who('-file',file);
 if ismember('TractsEnd',file_info)
@@ -33,7 +33,7 @@ Diff_str = data.tracts.fancy.Diff_str; % Diffuse Strength [0 1]
 the_mask = ones(174,145,145);
 count = 1;
 % Tract points/voxels from .mat Tracts, or data.tracto
-for i = 1:size(TractsCSDFOD,2) %1*nTracst cell, voxels+2end x sh_coef
+for i = 1:3 %size(TractsCSDFOD,2) %1*nTracst cell, voxels+2end x sh_coef
 
 %     [x y z] = E_DTI_Get_ROI_entries(i,the_mask); %data.HARDI_GL.Use_mask.the_mask);
     [x y z] = E_DTI_Get_tract_entries2(TractsCSDFOD{1,i},the_mask, Tracts{1,i},TractsEnd(:,i));
@@ -96,10 +96,10 @@ for i = 1:size(TractsCSDFOD,2) %1*nTracst cell, voxels+2end x sh_coef
         main_axes = findobj('Tag','Main Axes');
         set(h_f, 'currentaxes', main_axes);
 
-        if count>1
-        delete(data.hDTI_tract{i-1})
-%         delete(data.hTracts_FOD{i-1})
-        end
+%         if count>1
+%         delete(data.hDTI_tract{i-1})
+% %         delete(data.hTracts_FOD{i-1})
+%         end
         
         data.hDTI_tract{i} = patch('faces', FACES, 'vertices', VERTICES, 'FaceVertexCData', COL,...
             'FaceColor','interp', 'FaceLighting', 'phong','linestyle','none',...

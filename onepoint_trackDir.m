@@ -23,89 +23,84 @@ VDims = data.DTI.VDims;
 point = single(point);
 fod_itp = interpolate_neighbour(fod,point,VDims);                    
 [point, dir, val, idk] = getInitDir(point,fod_itp,threshold);
-                
-            % mask out all small peaks
-            mask = val > threshold;  
-            fod_itp = interpolate_neighbour(fod,point,VDims); 
-            
-            fod_itp = fod_itp(:,mask);   
-            point = point(:,mask);
-            dir = dir(:,mask);
-            
 
-            [tract1, tractVal1,tractCSD_FOD1,tracte1,tracte_a1,tracte_v1,tract_angle1,tract_dir1,tract_val1] = trackOneDir(point, dir,fod,lengthRange,stepSize,threshold,VDims,maxAngle); 
-            [tract2, tractVal2,tractCSD_FOD2,tracte2,tracte_a2,tracte_v2,tract_angle2,tract_dir2,tract_val2] = trackOneDir(point, -dir, fod,lengthRange,stepSize,threshold,VDims,maxAngle); 
+point = point(:,1);
+dir = dir(:,1);
 
-            
-            % join tracts from both directions
-            tractCSD_FOD2 = cellfun(@flipud,tractCSD_FOD2,'UniformOutput',false);
-            tractFOD = cell(size(tractCSD_FOD2));
+fod_itp = interpolate_neighbour(fod,point,VDims); 
+[tract1, tractVal1,tractCSD_FOD1,tracte1,tracte_a1,tracte_v1,tract_angle1,tract_dir1,tract_val1] = trackOneDir(point, dir,fod,lengthRange,stepSize,threshold,VDims,maxAngle); 
+[tract2, tractVal2,tractCSD_FOD2,tracte2,tracte_a2,tracte_v2,tract_angle2,tract_dir2,tract_val2] = trackOneDir(point, -dir, fod,lengthRange,stepSize,threshold,VDims,maxAngle); 
 
-            tract2 = cellfun(@flipud,tract2,'UniformOutput',false);
-            tractVal2 = cellfun(@flipud,tractVal2,'UniformOutput',false);
-            tract = cell(size(tract2));
-            tractVal = cell(size(tractVal2));
-            
-            tract_angle2 = cellfun(@flipud,tract_angle2,'UniformOutput',false);
-            tract_angle = cell(size(tract_angle2));
-            tract_val2 = cellfun(@flipud,tract_val2,'UniformOutput',false);
-            tract_val = cell(size(tract_val2));
-            tract_dir2 = cellfun(@flipud,tract_dir2,'UniformOutput',false);
-            tract_dir = cell(size(tract_dir2));
-           
-            for j = 1:size(tract2,2)
-                if ~isempty(tract2{j})
-                    tract{j} = [tract2{j}; point(:,j)'];
-                    tractVal{j} = [tractVal2{j}; val(:,j)'];
-                    tractFOD{j} = [tractCSD_FOD2{j}; fod_itp(:,j)'];
-                    tract_val{j} = [tract_val2{j};val(:,j)'];
-                    tract_dir{j} = [tract_dir2{j};dir(:,j)'];
-                    tract_angle{j} = [tract_angle2{j};0]; 
-                    
-                    if ~isempty(tract1{j})
-                        tract{j} = [tract{j}; tract1{j}];
-                        tractVal{j} = [tractVal{j}; tractVal1{j}];
-                        tractFOD{j} = [tractFOD{j}; tractCSD_FOD1{j}];
-                        tract_val{j} = [tract_val{j}; tract_val1{j}];
-                        tract_dir{j} = [tract_dir{j}; tract_dir1{j}];
-                        tract_angle{j} = [tract_angle{j}; tract_angle1{j}];
-                    end
-                else
-                    if ~isempty(tract1{j})
-                        tract{j} = [point(:,j)'; tract1{j}];
-                        tractVal{j} = [val(:,j)'; tractVal1{j}];
-                        tractFOD{j} = [fod_itp(:,j)'; tractCSD_FOD1{j}];
-                        tract_val{j} = [val(:,j)'; tract_val1{j}];
-                        tract_dir{j} = [dir(:,j)'; tract_dir1{j}];
-                        tract_angle{j} = [0; tract_angle1{j}];
-                    end
-                end
+
+    % join tracts from both directions
+    tractCSD_FOD2 = cellfun(@flipud,tractCSD_FOD2,'UniformOutput',false);
+    tractFOD = cell(size(tractCSD_FOD2));
+
+    tract2 = cellfun(@flipud,tract2,'UniformOutput',false);
+    tractVal2 = cellfun(@flipud,tractVal2,'UniformOutput',false);
+    tract = cell(size(tract2));
+    tractVal = cell(size(tractVal2));
+
+    tract_angle2 = cellfun(@flipud,tract_angle2,'UniformOutput',false);
+    tract_angle = cell(size(tract_angle2));
+    tract_val2 = cellfun(@flipud,tract_val2,'UniformOutput',false);
+    tract_val = cell(size(tract_val2));
+    tract_dir2 = cellfun(@flipud,tract_dir2,'UniformOutput',false);
+    tract_dir = cell(size(tract_dir2));
+
+    for j = 1:size(tract2,2)
+        if ~isempty(tract2{j})
+            tract{j} = [tract2{j}; point(:,j)'];
+            tractVal{j} = [tractVal2{j}; val(:,j)'];
+            tractFOD{j} = [tractCSD_FOD2{j}; fod_itp(:,j)'];
+            tract_val{j} = [tract_val2{j};val(:,j)'];
+            tract_dir{j} = [tract_dir2{j};dir(:,j)'];
+            tract_angle{j} = [tract_angle2{j};0]; 
+
+            if ~isempty(tract1{j})
+                tract{j} = [tract{j}; tract1{j}];
+                tractVal{j} = [tractVal{j}; tractVal1{j}];
+                tractFOD{j} = [tractFOD{j}; tractCSD_FOD1{j}];
+                tract_val{j} = [tract_val{j}; tract_val1{j}];
+                tract_dir{j} = [tract_dir{j}; tract_dir1{j}];
+                tract_angle{j} = [tract_angle{j}; tract_angle1{j}];
             end
-            
-             fode1 =  interpolate_neighbour(fod,tracte1,VDims); 
-             fode2 = interpolate_neighbour(fod,tracte2,VDims);
-             for j = 1:size(tract2,2)
-                 tractFOD{j} = [fode2(:,j)';tractFOD{j}; fode1(:,j)'];
-             end
-            
-            % enforce length limitations
-            mask = cellfun('size',tract,1)>1;
-            tract = tract(mask);
-            tractVal = tractVal(mask);
-            tractFOD = tractFOD(mask);
-            tract_val = tract_val(mask);
-            tract_dir = tract_dir(mask);
-            tract_angle = tract_angle(mask);
-            
-            tracte = [tracte2;tracte1];
-            tracte = tracte(:,mask);
-            
-            tracte_a = [tracte_a2;tracte_a1];
-            tracte_a = tracte_a(:,mask);
-            tracte_v = [tracte_v2;tracte_v1];
-            tracte_v = tracte_v(:,mask);
-
+        else
+            if ~isempty(tract1{j})
+                tract{j} = [point(:,j)'; tract1{j}];
+                tractVal{j} = [val(:,j)'; tractVal1{j}];
+                tractFOD{j} = [fod_itp(:,j)'; tractCSD_FOD1{j}];
+                tract_val{j} = [val(:,j)'; tract_val1{j}];
+                tract_dir{j} = [dir(:,j)'; tract_dir1{j}];
+                tract_angle{j} = [0; tract_angle1{j}];
+            end
         end
+    end
+
+     fode1 =  interpolate_neighbour(fod,single(tracte1),VDims); 
+     fode2 = interpolate_neighbour(fod,single(tracte2),VDims);
+     for j = 1:size(tract2,2)
+         tractFOD{j} = [fode2(:,j)';tractFOD{j}; fode1(:,j)'];
+     end
+
+    % enforce length limitations
+    mask = cellfun('size',tract,1)>1;
+    tract = tract(mask);
+    tractVal = tractVal(mask);
+    tractFOD = tractFOD(mask);
+    tract_val = tract_val(mask);
+    tract_dir = tract_dir(mask);
+    tract_angle = tract_angle(mask);
+
+    tracte = [tracte2;tracte1];
+    tracte = tracte(:,mask);
+
+    tracte_a = [tracte_a2;tracte_a1];
+    tracte_a = tracte_a(:,mask);
+    tracte_v = [tracte_v2;tracte_v1];
+    tracte_v = tracte_v(:,mask);
+
+end
 
     
 
@@ -130,21 +125,15 @@ function [tract, tractVal,tractCSD_FOD,tracte,tracte_a,tracte_v,tract_angle,trac
                 [newDir, val, angle] = getDir(fun,dir);
                 flipsign = sign(sum(dir.*newDir,1));               
                 newDir = flipsign([1 1 1],:).*newDir;
-                mask = val > threshold; %a1
+                mask = val > 0.5*threshold; 
                 
-                % b1, include neighbour voxels
-                [mask,ndir,nval,newangle,idk] = include_nbtrack3 (point,mask,dir,fod,threshold,stepSize,VDims);
+                % include neighbour voxels
+                [mask,ndir,nval,newangle,idk] = include_nbtrack3 (point,mask,dir,fod,threshold,stepSize,VDims,val);
                 newDir(:,idk) = ndir(:,idk);
                 angle(idk) = newangle(idk); 
                 val(idk) = nval(idk); 
                 
-               % b2, afd informed tracking 
-                omask = mask;
-                fun_new = fun;
-                [mask,a_dir,id,a_val,ir_angle] = include_high_afd_branches2(omask,newDir,fun_new,val);
-                [s2_dir,s2_val] = SHPrecomp.all_peaks(fun,threshold,4);
-                newDir(:,id) = a_dir(:,id);
-                val(id) = a_val(id);
+
                  
                 % continue
                 temp = ~mask;
